@@ -123,8 +123,10 @@ class Associator
      */
     public function associateModel($model)
     {
-        if ((new Caller($model))->authorizeCallOrThrow($this->related))
-        $model->load($this->related);
+        foreach ($this->related as $relation) {
+            if ((new Caller($model))->authorizeCallOrThrow($relation))
+                $model->load($relation);
+        }
     }
 
 }

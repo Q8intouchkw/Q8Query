@@ -200,7 +200,7 @@ class Query
                 'selectFromModel',
                 $eloquent);
             $this->tryExecuteQuery(
-                Selector::class,
+                Associator::class,
                 'createFromRequest',
                 'associateModel',
                 $eloquent);
@@ -299,14 +299,17 @@ class Query
      * @param Builder|Model $model
      * @param array $args
      * @return Builder|Builder[]|\Illuminate\Database\Eloquent\Collection|Model
+     * @throws ModelNotFoundException
      */
     protected function paginateIfBuilder($model, ...$args)
     {
-        return $this->isModel($model)
-            ? $model
-            : $this->isSingleRelation()
-                ? $model->first()
-                : call_user_func_array([$model, 'paginate'], $args);
+        if (!$model)
+            throw new ModelNotFoundException('The required model cant be found or not directly related to the nested resource');
+        if ($this->isModel($model))
+            return $model;
+        else return $this->isSingleRelation()
+            ? $model->first()
+            : call_user_func_array([$model, 'paginate'], $args);
     }
 
     protected function isModel($eloquent)
