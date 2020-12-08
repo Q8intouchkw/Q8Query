@@ -7,7 +7,6 @@
         }
     ],
     "require": {
-        "orchestra/testbench": "^3.5",
         "jan-swiecki/simple-annotations": "^0.3.1"
     },
     "autoload": {
