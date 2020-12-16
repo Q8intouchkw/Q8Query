@@ -81,5 +81,8 @@ return [
     /**
      * param key used for scoping related models ex:  www.example.com/User?scope=active(3)
      */
-    "scoper" => 'scope'
+    "scoper" => 'scope',
+
+    "middleware" => 'auth:api',
+
 ];
