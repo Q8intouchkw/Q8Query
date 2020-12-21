@@ -83,6 +83,12 @@ return [
      */
     "scoper" => 'scope',
 
+    /**
+     * @nullable
+     * default api authorization guard for Q8query
+     * can be set to a custom middleware
+     * setting to null means that the package will ignore any form of authentication/authorization
+     */
     "middleware" => 'auth:api',
 
 ];

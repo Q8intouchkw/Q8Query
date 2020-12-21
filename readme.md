@@ -232,6 +232,67 @@ a dynamic select, or a filterer. However, don't get confused by the `filter` as 
 - fetch users and attach working hours in day:hours:minutes format
     - `Q8Query/User?scope=attachUserWorkingHours("DD:HH:MM")`
 
+# Authentication
+
+By default, The package will require the user to be authenticated with the API guard. 
+However, this behaviour can be changed by specifying a custom middleware within the `config` files.
+```php
+return [
+    ... 
+    "middleware" => 'auth:api' // nullable 
+];
+```
+Moreover, the authentication can be disabled completely by setting the middleware to `null` within the config file.
+
+# Authorization
+Authorization is handled by specifying a policy for the required model within `AuthServiceProvider`:
+```PHP
+    /**
+     * The policy mappings for the application.
+     *
+     * @var array
+     */
+    protected $policies = [
+        \App\Models\Post::class => \App\Policies\PostPolicy::class,
+    ];
+```
+
+The supported methods currently are:
+- `view`
+- `viewAny`
+
+ex `PostPolicy` for `Post` ModelClass:
+```php
+<?php
+
+namespace App\Policies;
+
+use App\Models\User;
+use App\Models\Post;
+use Illuminate\Auth\Access\HandlesAuthorization;
+
+class PostPolicy
+{
+    use HandlesAuthorization;
+
+    /**
+     * Determine whether the user can update the post.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Post  $post
+     * @return mixed
+     */
+    public function view(User $user, Post $post)
+    {
+        return $user->type == 'editor';
+    }
+}
+```
+
+*Important*: The default behaviour of the package is to proceed with any request unless a policy is specified for the
+requested model. so, if there is no policy for `Post` class, the `q8query` will just proceed with the request without
+interruption
+
 # Features:
 
 1. fetch models by URL schema
