@@ -7,11 +7,13 @@ namespace Q8Intouch\Q8Query;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Gate;
 use Q8Intouch\Q8Query\Associator\Associator;
 use Q8Intouch\Q8Query\Core\Caller;
 use Q8Intouch\Q8Query\Core\Exceptions\ModelNotFoundException;
 use Q8Intouch\Q8Query\Core\Exceptions\NoQueryParameterFound;
 use Q8Intouch\Q8Query\Core\Exceptions\NoStringMatchesFound;
+use Q8Intouch\Q8Query\Core\Exceptions\NotAuthorizedException;
 use Q8Intouch\Q8Query\Core\Exceptions\ParamsMalformedException;
 use Q8Intouch\Q8Query\Core\Utils;
 use Q8Intouch\Q8Query\Core\Validator;
@@ -91,12 +93,17 @@ class Query
      * @throws ModelNotFoundException
      * @throws NoStringMatchesFound
      * @throws \ReflectionException
+     * @throws NotAuthorizedException
      */
     public function build()
     {
 
         return
-            $this->prefetchOperations($this->getModelQuery());
+            $this->prefetchOperations(
+                $this->authorize(
+                    $this->getModelQuery()
+                )
+            );
 
     }
 
@@ -322,4 +329,50 @@ class Query
         return in_array(substr(strrchr($this->returnType, "\\"), 1), self::$singleRelationPrefixes);
     }
 
+    /**
+     * @param $eloquent Model|Builder
+     * @return Model|Builder
+     * @throws NotAuthorizedException
+     */
+    protected function authorize($eloquent)
+    {
+        $result = true;
+        if ($this->checkableEloquent($eloquent))
+            $result = Gate::check($this->getAuthAbility($eloquent), $this->getModelInstance($eloquent));
+
+        if (!$result)
+            throw new NotAuthorizedException('Auth user not allowed to view this resource', 1);
+        return $eloquent;
+    }
+
+    /**
+     * @param $eloquent Model|Builder
+     * @return Model
+     */
+    protected function getModelInstance($eloquent): Model
+    {
+        return $eloquent instanceof Model ? $eloquent : $eloquent->getModel();
+    }
+
+    /**
+     * @param $eloquent Model|Builder
+     * @return string
+     */
+    protected function getAuthAbility($eloquent): string
+    {
+        return $eloquent instanceof Model ? 'view' : 'viewAny';
+    }
+
+    /**
+     * by default the package ignores the authorization if middleware is set to null
+     * or the model doesnt have a policy. so this function checks for both :)
+     * @param $eloquent
+     * @return bool
+     */
+    protected function checkableEloquent($eloquent): bool
+    {
+        return
+            config('q8-query.middleware') != null
+            && Gate::getPolicyFor($this->getModelInstance($eloquent)) != null;
+    }
 }
