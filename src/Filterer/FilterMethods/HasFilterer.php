@@ -20,7 +20,7 @@ class HasFilterer implements \Q8Intouch\Q8Query\Filterer\Filterable
         return count($expression->lexemes) > 1 && $expression->lexemes[0] == 'has';
     }
 
-    public function filter($query, $expression): Builder
+    public function filter($query, $expression)
     {
         $lexemes = $expression->lexemes;
         if (count($lexemes) == 2) {

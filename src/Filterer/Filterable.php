@@ -19,5 +19,5 @@ interface Filterable
      * @param $expression Expression
      * @return Builder
      */
-    public function filter($query, $expression): Builder;
+    public function filter($query, $expression);
 }
