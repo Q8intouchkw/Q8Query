@@ -230,7 +230,7 @@ a dynamic select, or a filterer. However, don't get confused by the `filter` as 
 - fetch users having id > 3 ordered by id in descending order
     - `Q8Query/User?filter=id gt 3&order_by=id, desc`
 - fetch users and attach working hours in day:hours:minutes format
-    - `Q8Query/User?scope=attachUserWorkingHours("DD:HH:MM")`
+    - `Q8Query/User?scope=attachUserWorkingHours("DD:HH:MM")` (by using sub select)
 
 # Authentication
 
