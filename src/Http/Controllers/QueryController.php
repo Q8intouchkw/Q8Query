@@ -24,6 +24,7 @@ class QueryController extends BaseController
         try {
             return
                 Query::QueryFromPathString($url)
+                    ->withRequest($request)
                     ->paginate($page_count);//->appends($request->except($paginator_key));
         } catch (\Exception $e) {
             throw $e;

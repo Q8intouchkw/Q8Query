@@ -6,6 +6,7 @@ namespace Q8Intouch\Q8Query;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
 use Q8Intouch\Q8Query\Associator\Associator;
@@ -15,6 +16,7 @@ use Q8Intouch\Q8Query\Core\Exceptions\NoQueryParameterFound;
 use Q8Intouch\Q8Query\Core\Exceptions\NoStringMatchesFound;
 use Q8Intouch\Q8Query\Core\Exceptions\NotAuthorizedException;
 use Q8Intouch\Q8Query\Core\Exceptions\ParamsMalformedException;
+use Q8Intouch\Q8Query\Core\Hooker;
 use Q8Intouch\Q8Query\Core\Utils;
 use Q8Intouch\Q8Query\Core\Validator;
 use Q8Intouch\Q8Query\Filterer\Filterer;
@@ -44,6 +46,13 @@ class Query
      * @var string
      */
     protected $returnType;
+
+    /**
+     * @var Hooker
+     */
+    protected $hook;
+
+    protected $request;
 
     protected static $singleRelationPrefixes = [
         'HasOne',
@@ -97,11 +106,12 @@ class Query
      */
     public function build()
     {
-
+        $builder = $this->getModelQuery();
+        $this->hook = Hooker::fromBuilder($builder);
         return
             $this->prefetchOperations(
                 $this->authorize(
-                    $this->getModelQuery()
+                    $builder
                 )
             );
 
@@ -243,6 +253,11 @@ class Query
                 $eloquent
             );
         }
+        $this->hook->callHookMethod(
+            $this->isSingleObjectPath() ? 'beforeShow' : 'beforeIndex',
+            $this->request,
+            $eloquent
+        );
         return $eloquent;
     }
 
@@ -374,5 +389,11 @@ class Query
         return
             config('q8-query.middleware') != null
             && Gate::getPolicyFor($this->getModelInstance($eloquent)) != null;
+    }
+
+    public function withRequest($request): Query
+    {
+        $this->request = $request;
+        return $this;
     }
 }

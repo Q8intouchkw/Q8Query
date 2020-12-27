@@ -91,4 +91,11 @@ return [
      */
     "middleware" => 'auth:api',
 
+
+    /**
+     * register hooks here as an associative array
+     * @example [ \App\Model\User::class => App\Q8Query\Hooks\Hooks\UserHook::class,]
+     */
+    "hooks" => []
+
 ];
