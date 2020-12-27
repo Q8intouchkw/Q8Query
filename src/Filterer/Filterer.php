@@ -9,6 +9,7 @@ use Q8Intouch\Q8Query\Core\Defaults;
 use Q8Intouch\Q8Query\Core\Exceptions\NoQueryParameterFound;
 use Q8Intouch\Q8Query\Core\Exceptions\NoStringMatchesFound;
 use Q8Intouch\Q8Query\Core\Utils;
+use Q8Intouch\Q8Query\Filterer\FilterMethods\DoesntHaveFilterer;
 use Q8Intouch\Q8Query\Filterer\FilterMethods\HasFilterer;
 use Q8Intouch\Q8Query\Filterer\FilterMethods\ScopeFilterer;
 
@@ -64,7 +65,8 @@ class Filterer
         // TODO add custom filters from config
         $this->customFilterers = [
             new HasFilterer,
-            new ScopeFilterer
+            new ScopeFilterer,
+            new DoesntHaveFilterer()
         ];
     }
 
