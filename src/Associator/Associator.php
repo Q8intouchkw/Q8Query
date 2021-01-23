@@ -124,9 +124,9 @@ class Associator
     public function associateModel($model)
     {
         foreach ($this->related as $relation) {
-            if ((new Caller($model))->authorizeCallOrThrow($relation))
-                $model->load($relation);
+            (new Caller($model))->authorizeCallOrThrow($relation);
         }
+        $model->load($this->related);
     }
 
 }
